@@ -1,90 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { globalStyles, CORES } from './theme';
+
+// Dados de exemplo (substitua pelo seu estado/props)
+const jogosExemplo = [
+  { id: '1', nome: 'The Legend of Zelda: Breath of the Wild', genero: 'Ação/Aventura', plataforma: 'Nintendo Switch', ano: '2017' },
+  { id: '2', nome: 'God of War Ragnarök', genero: 'Ação/Aventura', plataforma: 'PlayStation 5', ano: '2022' },
+  { id: '3', nome: 'Elden Ring', genero: 'RPG de Ação', plataforma: 'PC / Console', ano: '2022' },
+  { id: '4', nome: 'Super Mario Odyssey', genero: 'Plataforma', plataforma: 'Nintendo Switch', ano: '2017' },
+];
 
 export default function Catalogo({ navigation }) {
-  const [jogos, setJogos] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-
-  // Altere para o IP local da sua máquina
-  const API_URL = 'http://192.168.1.100:3000/jogos';
-
-  useEffect(() => {
-    fetch(API_URL)
-      .then((response) => response.json())
-      .then((data) => {
-        setJogos(data);
-        setCarregando(false);
-      })
-      .catch((error) => {
-        console.error('Erro ao buscar jogos:', error);
-        setCarregando(false);
-      });
-  }, []);
-
-  if (carregando) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#7209B7" />
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={globalStyles.cardCatalogo}
+      activeOpacity={0.7}
+      onPress={() => navigation?.navigate('Detalhes', { jogo: item })}
+    >
+      <View style={globalStyles.cardHeader}>
+        <Text style={globalStyles.nomeJogoCard}>{item.nome}</Text>
+        <View style={globalStyles.tagAno}>
+          <Text style={globalStyles.textoAno}>{item.ano}</Text>
+        </View>
       </View>
-    );
-  }
+
+      <View style={globalStyles.tagsContainer}>
+        <View style={globalStyles.badgeGenero}>
+          <Text style={globalStyles.textoBadgeGenero}>🎮 {item.genero}</Text>
+        </View>
+        <View style={globalStyles.badgePlataforma}>
+          <Text style={globalStyles.textoBadgePlataforma}>💻 {item.plataforma}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
+      <View style={globalStyles.headerContainer}>
+        <Text style={globalStyles.tituloTela}>Catálogo de Jogos</Text>
+        <Text style={globalStyles.subtituloTela}>Sua biblioteca selecionada</Text>
+      </View>
+
       <FlatList
-        data={jogos}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('Detalhes', { id: item.id })}
-          >
-            <Text style={styles.nome}>{item.nome}</Text>
-            <Text style={styles.info}><Text style={styles.destaque}>Gênero:</Text> {item.genero}</Text>
-            <Text style={styles.info}><Text style={styles.destaque}>Plataforma:</Text> {item.plataforma}</Text>
-            <Text style={styles.info}><Text style={styles.destaque}>Ano:</Text> {item.ano}</Text>
-          </TouchableOpacity>
-        )}
+        data={jogosExemplo}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={globalStyles.listaContainer}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#121612',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#121612',
-  },
-  card: {
-    backgroundColor: '#1E281E', // Verde musgo bem escuro
-    padding: 16,
-    borderRadius: 10,
-    marginBottom: 14,
-    borderLeftWidth: 5,
-    borderLeftColor: '#7209B7', // Detalhe lateral em roxo místico
-    borderWidth: 1,
-    borderColor: '#3A5A40',
-  },
-  nome: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#D4A373', // Tom pergaminho
-    marginBottom: 8,
-  },
-  info: {
-    fontSize: 14,
-    color: '#E0E1DD',
-    marginBottom: 2,
-  },
-  destaque: {
-    color: '#A3B18A', // Musgo suave
-    fontWeight: 'bold',
-  },
-});
